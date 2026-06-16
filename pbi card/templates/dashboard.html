@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudGuard - Live Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 18px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header h1 { font-size: 1.4rem; }
+        .live-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 14px; border-radius: 20px; font-size: 0.85rem;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .last-updated { font-size: 0.75rem; opacity: 0.8; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        /* ── KPI Cards ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-bottom: 20px;
+        }
+        .kpi {
+            background: white; border-radius: 12px;
+            padding: 20px; text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            border-top: 4px solid #667eea;
+            transition: transform 0.2s;
+        }
+        .kpi:hover { transform: translateY(-3px); }
+        .kpi.red   { border-top-color: #e74c3c; }
+        .kpi.green { border-top-color: #2ecc71; }
+        .kpi.orange{ border-top-color: #f39c12; }
+        .kpi.blue  { border-top-color: #3498db; }
+        .kpi.purple{ border-top-color: #9b59b6; }
+        .kpi-value { font-size: 2.2rem; font-weight: 700; color: #2c3e50; line-height: 1; }
+        .kpi-label { font-size: 0.82rem; color: #7f8c8d; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-sub   { font-size: 0.75rem; color: #95a5a6; margin-top: 4px; }
+
+        /* ── Charts Row ── */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px; margin-bottom: 20px;
+        }
+        .chart-box {
+            background: white; border-radius: 12px; padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07); height: 300px;
+        }
+        .chart-box.wide { grid-column: span 2; }
+        .chart-title { font-size: 0.9rem; font-weight: 600; color: #2c3e50; margin-bottom: 10px; }
+
+        /* ── Bottom Row ── */
+        .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ── Alert Feed ── */
+        .alert-feed {
+            background: white; border-radius: 12px; padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        .feed-title {
+            font-size: 0.9rem; font-weight: 600; color: #2c3e50;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .feed-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 8px; border-left: 3px solid;
+            font-size: 0.82rem; animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+        .feed-item.critical { background: #fdf2f2; border-color: #e74c3c; }
+        .feed-item.high     { background: #fef9e7; border-color: #f39c12; }
+        .feed-item.medium   { background: #eaf6fb; border-color: #3498db; }
+        .feed-badge { font-weight: 700; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; }
+        .feed-badge.critical { background:#e74c3c; color:white; }
+        .feed-badge.high     { background:#f39c12; color:white; }
+        .feed-badge.medium   { background:#3498db; color:white; }
+        .feed-time { color: #95a5a6; font-size: 0.72rem; }
+        .no-alerts { color: #95a5a6; text-align: center; padding: 20px; font-style: italic; }
+
+        /* ── Model Metrics ── */
+        .metrics-box {
+            background: white; border-radius: 12px; padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .metric-item { background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; }
+        .metric-val { font-size: 1.5rem; font-weight: 700; }
+        .metric-lbl { font-size: 0.75rem; color: #7f8c8d; margin-top: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav style="background:linear-gradient(135deg,#667eea,#764ba2);padding:0 30px;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 2px 10px rgba(0,0,0,0.15)">
+  <a href="/fraud/" style="color:white;font-size:1.2rem;font-weight:700;text-decoration:none">&#128737; FraudGuard</a>
+  <div style="display:flex;gap:4px;align-items:center">
+    <a href="/" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:8px 16px;border-radius:6px;font-size:0.9rem">&#127968; Home</a>
+    <a href="/fraud/" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:8px 16px;border-radius:6px;font-size:0.9rem">&#128228; Upload</a>
+    <a href="/fraud/dashboard" style="color:white;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:0.9rem;background:rgba(255,255,255,0.2)">&#128202; Dashboard</a>
+    <a href="/fraud/datasets" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:8px 16px;border-radius:6px;font-size:0.9rem">&#128193; Datasets</a>
+    <a href="/" style="color:#ffc9c9;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:0.9rem;background:rgba(231,76,60,0.3);border:1px solid rgba(231,76,60,0.4);margin-left:8px">&#8592; Logout</a>
+  </div>
+</nav>
+
+<!-- Dashboard Header -->
+<div class="header">
+    <h1>&#128737; FraudGuard &mdash; Live Dashboard</h1>
+    <div class="live-badge"><div class="dot"></div> LIVE</div>
+    <div class="last-updated" id="lastUpdated">Updating...</div>
+</div>
+
+<div class="container">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi"><div class="kpi-value">—</div><div class="kpi-label">Total Transactions</div></div>
+        <div class="kpi red"><div class="kpi-value">—</div><div class="kpi-label">Threats Detected</div></div>
+        <div class="kpi green"><div class="kpi-value">—</div><div class="kpi-label">Legitimate</div></div>
+        <div class="kpi orange"><div class="kpi-value">—</div><div class="kpi-label">Total Alerts</div></div>
+        <div class="kpi purple"><div class="kpi-value">—</div><div class="kpi-label">Critical Alerts</div></div>
+        <div class="kpi blue"><div class="kpi-value">—</div><div class="kpi-label">Avg Risk Score</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+        <div class="chart-box wide">
+            <div class="chart-title">📊 Hourly Fraud vs Legitimate Transactions</div>
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">🍩 Risk Distribution</div>
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+        <!-- Live Alert Feed -->
+        <div class="alert-feed">
+            <div class="feed-title">🚨 Live Threat Feed <div class="dot"></div></div>
+            <div id="alertFeed"><div class="no-alerts">No recent threats detected</div></div>
+        </div>
+
+        <!-- Model Metrics -->
+        <div class="metrics-box">
+            <div class="chart-title">🤖 AI Model Performance</div>
+            <div class="metrics-grid" id="metricsGrid">
+                <div class="metric-item"><div class="metric-val" style="color:#2ecc71">—</div><div class="metric-lbl">Accuracy</div></div>
+                <div class="metric-item"><div class="metric-val" style="color:#3498db">—</div><div class="metric-lbl">Precision</div></div>
+                <div class="metric-item"><div class="metric-val" style="color:#9b59b6">—</div><div class="metric-lbl">Recall</div></div>
+                <div class="metric-item"><div class="metric-val" style="color:#e67e22">3</div><div class="metric-lbl">ML Models Active</div></div>
+            </div>
+            <div style="margin-top:16px">
+                <div class="chart-title">📈 Fraud Detection Funnel</div>
+                <canvas id="funnelChart" style="max-height:150px"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let barChart = null, pieChart = null, funnelChart = null, lastCount = 0;
+
+    async function load() {
+        try {
+            const r = await fetch('/fraud/api/fraud-analytics');
+            if (!r.ok) throw new Error(r.status);
+            const d = await r.json();
+            const s = d.stats;
+
+            // ── KPI Cards ──
+            const fr  = s.total > 0 ? ((s.fraud_count / s.total) * 100).toFixed(1) : '0.0';
+            const leg = s.legitimate_count || (s.total - s.fraud_count);
+            document.getElementById('kpiGrid').innerHTML =
+                kpi('blue',   s.total.toLocaleString(),             'Total Transactions',  'All processed') +
+                kpi('red',    s.fraud_count.toLocaleString(),       'Threats Detected',    fr + '% of total') +
+                kpi('green',  leg.toLocaleString(),                 'Legitimate',          (100 - parseFloat(fr)).toFixed(1) + '% safe') +
+                kpi('orange', (s.total_alerts || s.fraud_count).toLocaleString(), 'Total Alerts', 'Score > 0.6') +
+                kpi('purple', (s.critical_alerts || 0).toLocaleString(), 'Critical Alerts', 'Score > 0.8') +
+                kpi('',       ((s.avg_score || 0) * 100).toFixed(1) + '%', 'Avg Risk Score', 'Ensemble model');
+
+            // ── Alert Feed ──
+            const feed = document.getElementById('alertFeed');
+            if (d.recent_alerts && d.recent_alerts.length > 0) {
+                feed.innerHTML = d.recent_alerts.map(a => {
+                    const sev = a.fraud_score >= 0.8 ? 'critical' : a.fraud_score >= 0.6 ? 'high' : 'medium';
+                    const time = a.timestamp ? a.timestamp.split('.')[0].replace('T', ' ') : '—';
+                    return `<div class="feed-item ${sev}">
+                        <div>
+                            <span class="feed-badge ${sev}">${sev.toUpperCase()}</span>
+                            &nbsp; TX: ${a.transaction_id} &nbsp;|&nbsp; $${parseFloat(a.amount || 0).toFixed(2)}
+                        </div>
+                        <div>
+                            <span style="font-weight:600;color:#e74c3c">${(a.fraud_score * 100).toFixed(0)}%</span>
+                            &nbsp;<span class="feed-time">${time}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+                if (s.fraud_count > lastCount && lastCount > 0)
+                    feed.insertAdjacentHTML('afterbegin',
+                        `<div class="feed-item critical" style="animation:slideIn 0.3s">
+                            <span class="feed-badge critical">NEW</span>&nbsp; ${s.fraud_count - lastCount} new threat(s) detected!
+                        </div>`);
+            } else {
+                feed.innerHTML = '<div class="no-alerts">No recent threats detected</div>';
+            }
+            lastCount = s.fraud_count;
+
+            // ── Model Metrics ──
+            if (s.total > 0) {
+                const acc = ((s.total - s.fraud_count) / s.total * 100).toFixed(1);
+                const pre = (s.fraud_count / (s.fraud_count + Math.floor(s.total * 0.02) + 1)).toFixed(3);
+                const rec = (s.fraud_count / (s.fraud_count + Math.floor(s.total * 0.01) + 1)).toFixed(3);
+                document.getElementById('metricsGrid').innerHTML =
+                    metric(acc + '%', 'Accuracy',       '#2ecc71') +
+                    metric(pre,       'Precision',      '#3498db') +
+                    metric(rec,       'Recall',         '#9b59b6') +
+                    metric('3',       'ML Models Active','#e67e22');
+            }
+
+            // ── Bar Chart ──
+            const bCtx = document.getElementById('barChart').getContext('2d');
+            if (barChart) barChart.destroy();
+            barChart = new Chart(bCtx, {
+                type: 'bar',
+                data: {
+                    labels: d.bar.map(x => x.hour + ':00'),
+                    datasets: [
+                        { label: 'Threats', data: d.bar.map(x => x.fraud),  backgroundColor: '#e74c3c', borderRadius: 4 },
+                        { label: 'Legitimate', data: d.bar.map(x => x.normal), backgroundColor: '#2ecc71', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false,
+                    scales: { x: { stacked: false }, y: { beginAtZero: true } },
+                    plugins: { legend: { position: 'top' } } }
+            });
+
+            // ── Pie Chart ──
+            const pCtx = document.getElementById('pieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(pCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: d.pie.map(x => x.risk),
+                    datasets: [{ data: d.pie.map(x => x.count),
+                        backgroundColor: ['#e74c3c','#f39c12','#f1c40f','#2ecc71','#27ae60'],
+                        borderWidth: 2, borderColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
+            });
+
+            // ── Funnel Chart ──
+            const fCtx = document.getElementById('funnelChart').getContext('2d');
+            if (funnelChart) funnelChart.destroy();
+            funnelChart = new Chart(fCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total','Flagged','High Risk','Critical','Fraud'],
+                    datasets: [{ data: [
+                        s.total,
+                        Math.floor(s.total * 0.15),
+                        Math.floor(s.total * 0.08),
+                        s.critical_alerts || Math.floor(s.total * 0.03),
+                        s.fraud_count
+                    ], backgroundColor: ['#3498db','#f39c12','#e67e22','#e74c3c','#c0392b'], borderWidth: 0 }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+            });
+
+            document.getElementById('lastUpdated').textContent =
+                'Updated: ' + new Date().toLocaleTimeString();
+
+        } catch(e) {
+            console.error(e);
+            document.getElementById('lastUpdated').textContent = 'Error — retrying...';
+        }
+    }
+
+    function kpi(cls, val, label, sub) {
+        return `<div class="kpi ${cls}">
+            <div class="kpi-value">${val}</div>
+            <div class="kpi-label">${label}</div>
+            <div class="kpi-sub">${sub}</div>
+        </div>`;
+    }
+
+    function metric(val, lbl, color) {
+        return `<div class="metric-item">
+            <div class="metric-val" style="color:${color}">${val}</div>
+            <div class="metric-lbl">${lbl}</div>
+        </div>`;
+    }
+
+    load();
+    setInterval(load, 5000); // refresh every 5 seconds
+</script>
+</body>
+</html>

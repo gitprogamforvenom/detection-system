@@ -1,0 +1,42 @@
+# Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite3
+*.sqlite3-journal
+
+# User Workspaces & Uploads
+pbi card/uploads/
+pbi card/uploads/*
+Spam-Detection-Classifier-main/Spam-Detection-Classifier-main/spam_detection/uploads/
+Spam-Detection-Classifier-main/Spam-Detection-Classifier-main/spam_detection/uploads/*
+uploads/
+
+# Logs
+*.log
+launcher/*.log
+pbi card/*.log
+
+# Python Cache & Compiled Files
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudGuard — Fraud Detection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; }
+
+        /* ── Navbar ── */
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0 30px; display: flex; align-items: center;
+            justify-content: space-between; height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .nav-brand { color: white; font-size: 1.2rem; font-weight: 700; text-decoration: none; }
+        .nav-links { display: flex; gap: 4px; align-items: center; }
+        .nav-links a {
+            color: rgba(255,255,255,0.85); text-decoration: none;
+            padding: 8px 16px; border-radius: 6px;
+            font-size: 0.9rem; font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .nav-links a.active { background: rgba(255,255,255,0.2); color: white; }
+        .nav-links a.logout {
+            background: rgba(231,76,60,0.3); color: #ffc9c9;
+            border: 1px solid rgba(231,76,60,0.4); margin-left: 8px;
+        }
+        .nav-links a.logout:hover { background: rgba(231,76,60,0.6); color: white; }
+
+        /* ── Page Content ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 25px 30px; border-radius: 10px;
+            margin-bottom: 25px; text-align: center;
+        }
+        .page-title h1 { font-size: 1.6rem; margin-bottom: 4px; }
+        .page-title p { opacity: 0.85; font-size: 0.95rem; }
+
+        .upload-section { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .upload-section h2 { margin-bottom: 8px; color: #2c3e50; }
+        .upload-section p { color: #666; margin-bottom: 20px; }
+        .file-input {
+            width: 100%; padding: 30px 15px; border: 2px dashed #ddd;
+            border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s;
+            color: #666;
+        }
+        .file-input:hover { border-color: #667eea; background: #f8f9ff; color: #667eea; }
+        .btn {
+            background: #667eea; color: white; padding: 12px 28px;
+            border: none; border-radius: 6px; cursor: pointer;
+            font-size: 0.95rem; font-weight: 500; transition: all 0.2s;
+        }
+        .btn:hover { background: #5a6fd8; transform: translateY(-1px); }
+        .results { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: none; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-card.safe { background: linear-gradient(135deg, #00d2d3, #54a0ff); }
+        .stat-card.warning { background: linear-gradient(135deg, #feca57, #ff9f43); color: #333; }
+        .stat-card h3 { font-size: 1.8rem; font-weight: 700; }
+        .stat-card p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+        .high-risk { background: #fff5f5; border-left: 4px solid #ff6b6b; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .loading { display: none; text-align: center; padding: 30px; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a class="nav-brand" href="/fraud/">🛡️ FraudGuard</a>
+        <div class="nav-links">
+            <a href="/">🏠 Home</a>
+            <a href="/fraud/" class="active">📤 Upload</a>
+            <a href="/fraud/dashboard">📊 Dashboard</a>
+            <a href="/fraud/datasets">🗂️ Datasets</a>
+            <a href="/" class="logout">⬅️ Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>🛡️ Financial Fraud Detection</h1>
+            <p>Upload transaction datasets and detect fraud using AI ensemble models</p>
+        </div>
+
+        <div class="upload-section">
+            <h2>📊 Upload Transaction Dataset</h2>
+            <p>Supported formats: CSV, Excel (.xlsx, .xls)</p>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="file-input" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none">
+                    <p>📁 Click to select file or drag and drop</p>
+                    <p id="fileName" style="margin-top:8px;color:#667eea;font-weight:600"></p>
+                </div>
+                <button type="submit" class="btn" style="margin-top:16px;width:100%">🔍 Analyze for Fraud</button>
+            </form>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top:12px;color:#666">Analyzing transactions for fraud patterns...</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2 style="margin-bottom:16px;color:#2c3e50">📈 Fraud Detection Results</h2>
+            <div class="stats" id="stats"></div>
+            <div class="high-risk" id="highRisk" style="display:none">
+                <h3 style="margin-bottom:10px">🚨 High-Risk Transactions Sample</h3>
+                <div id="highRiskList"></div>
+            </div>
+            <div style="margin-top:24px;text-align:center;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+                <button class="btn" id="downloadBtn">📥 Download Results</button>
+                <button class="btn" id="exportPowerBI" style="background:#f39c12">📊 Export for Power BI</button>
+                <button class="btn" id="viewDashboard" style="background:#27ae60">📈 View Dashboard</button>
+                <button class="btn" id="viewDatasets" style="background:#6c757d">🗂️ View Datasets</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function() {
+            if (this.files[0]) document.getElementById('fileName').textContent = 'Selected: ' + this.files[0].name;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fi = document.getElementById('fileInput');
+            if (!fi.files[0]) { alert('Please select a file first!'); return; }
+            const formData = new FormData();
+            formData.append('file', fi.files[0]);
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            try {
+                const r = await fetch('/fraud/upload', { method: 'POST', body: formData });
+                const d = await r.json();
+                document.getElementById('loading').style.display = 'none';
+                if (d.success) displayResults(d);
+                else alert('Error: ' + d.error);
+            } catch(e) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Upload failed: ' + e.message);
+            }
+        });
+
+        function displayResults(data) {
+            const s = data.summary;
+            document.getElementById('stats').innerHTML =
+                `<div class="stat-card"><h3>${s.total_transactions}</h3><p>Total Transactions</p></div>` +
+                `<div class="stat-card"><h3>${s.fraud_count}</h3><p>Threats Detected</p></div>` +
+                `<div class="stat-card ${s.fraud_percentage > 10 ? '' : 'safe'}"><h3>${s.fraud_percentage}%</h3><p>Fraud Rate</p></div>` +
+                `<div class="stat-card warning"><h3>${s.high_risk_transactions}</h3><p>High-Risk Alerts</p></div>`;
+
+            if (data.high_risk_sample && data.high_risk_sample.length > 0) {
+                document.getElementById('highRiskList').innerHTML = data.high_risk_sample.map(tx =>
+                    `<div style="background:white;padding:12px;margin:8px 0;border-radius:6px;border-left:3px solid #ff6b6b;font-size:0.88rem">
+                        <strong>TX:</strong> ${tx.id || 'N/A'} &nbsp;|&nbsp;
+                        <strong>Amount:</strong> $${parseFloat(tx.amount || tx.Amount || 0).toFixed(2)} &nbsp;|&nbsp;
+                        <strong>Risk:</strong> ${tx.fraud_score ? (tx.fraud_score * 100).toFixed(1) + '%' : 'N/A'}
+                    </div>`).join('');
+                document.getElementById('highRisk').style.display = 'block';
+            }
+
+            document.getElementById('downloadBtn').onclick   = () => { window.location.href = '/fraud/' + data.download_url; };
+            document.getElementById('exportPowerBI').onclick = async () => {
+                try { await fetch('/fraud/export-powerbi'); alert('Power BI data exported!'); }
+                catch(e) { alert('Export failed: ' + e.message); }
+            };
+            document.getElementById('viewDashboard').onclick = () => window.open('/fraud/dashboard', '_blank');
+            document.getElementById('viewDatasets').onclick  = () => window.open('/fraud/datasets', '_blank');
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Metrics - Spam Detector</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .metric-card { transition: transform 0.2s; }
+        .metric-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-light">
+        <!-- Unified Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg" style="box-shadow:0 2px 10px rgba(0,0,0,0.15)">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="fas fa-shield-alt me-2"></i>SpamShield AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'model_metrics' %}">
+                            <i class="fas fa-chart-line me-1"></i>Metrics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blocked_emails' %}">
+                            <i class="fas fa-ban me-1"></i>Blocked
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'real_time_alerts' %}">
+                            <i class="fas fa-bell me-1"></i>Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'alert_settings' %}">
+                            <i class="fas fa-cog me-1"></i>Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'powerbi_export' %}">
+                            <i class="fas fa-file-export me-1"></i>Export
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'documentation' %}">
+                            <i class="fas fa-book me-1"></i>Docs
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="/"
+                           style="background:rgba(231,76,60,0.3);border:1px solid rgba(231,76,60,0.5);border-radius:6px;padding:6px 14px;color:#ffc9c9">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header gradient-bg text-white">
+                        <h3><i class="fas fa-chart-line me-2"></i>Model Performance Metrics</h3>
+                        <p class="mb-0">Track your spam detection model's performance over time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Metrics Cards -->
+        <div class="row mb-4">
+            {% if latest_metrics %}
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-bullseye fa-2x text-primary mb-2"></i>
+                        <h4 class="text-primary">{{ latest_metrics.accuracy|floatformat:3 }}</h4>
+                        <p class="text-muted mb-0">Accuracy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-crosshairs fa-2x text-success mb-2"></i>
+                        <h4 class="text-success">{{ latest_metrics.precision|floatformat:3 }}</h4>
+                        <p class="text-muted mb-0">Precision</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-search fa-2x text-warning mb-2"></i>
+                        <h4 class="text-warning">{{ latest_metrics.recall|floatformat:3 }}</h4>
+                        <p class="text-muted mb-0">Recall</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
+                        <h4 class="text-info">{{ latest_metrics.f1_score|floatformat:3 }}</h4>
+                        <p class="text-muted mb-0">F1 Score</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No metrics available yet. Train the model to see performance metrics.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-area me-2"></i>Performance Over Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-comments me-2"></i>User Feedback</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h3 class="text-primary">{{ feedback_stats.total_feedback }}</h3>
+                                <p class="text-muted">Total Feedback</p>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-success">
+                                    {% if feedback_stats.total_feedback > 0 %}
+                                        {% widthratio feedback_stats.correct_predictions feedback_stats.total_feedback 100 %}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </h3>
+                                <p class="text-muted">Accuracy from Feedback</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-ban me-2"></i>Detection Stats</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h3 class="text-danger">{{ blocked_count }}</h3>
+                                <p class="text-muted">Emails Blocked</p>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-info">
+                                    {% if latest_metrics %}
+                                        {{ latest_metrics.training_date|date:"M d, Y" }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </h3>
+                                <p class="text-muted">Last Training</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retrain Model -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-sync-alt me-2"></i>Model Management</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <p>Retrain the model with the latest data to improve performance.</p>
+                        <form method="post" action="{% url 'retrain_model' %}" style="display: inline;">
+
+                            <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('Are you sure you want to retrain the model? This may take a few minutes.')">
+                                <i class="fas fa-sync-alt me-2"></i>Retrain Model
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Performance Chart
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [
+                    {% for metric in all_metrics reversed %}
+                        '{{ metric.training_date|date:"M d" }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'Accuracy',
+                    data: [
+                        {% for metric in all_metrics reversed %}
+                            {{ metric.accuracy }},
+                        {% endfor %}
+                    ],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Alerts - Spam Detector</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .alert-card { border-left: 4px solid; margin-bottom: 1rem; }
+        .alert-critical { border-left-color: #dc3545; }
+        .alert-high { border-left-color: #fd7e14; }
+        .alert-medium { border-left-color: #ffc107; }
+        .alert-low { border-left-color: #28a745; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-light">
+        <!-- Unified Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg" style="box-shadow:0 2px 10px rgba(0,0,0,0.15)">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="fas fa-shield-alt me-2"></i>SpamShield AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'model_metrics' %}">
+                            <i class="fas fa-chart-line me-1"></i>Metrics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blocked_emails' %}">
+                            <i class="fas fa-ban me-1"></i>Blocked
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'real_time_alerts' %}">
+                            <i class="fas fa-bell me-1"></i>Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'alert_settings' %}">
+                            <i class="fas fa-cog me-1"></i>Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'powerbi_export' %}">
+                            <i class="fas fa-file-export me-1"></i>Export
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'documentation' %}">
+                            <i class="fas fa-book me-1"></i>Docs
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="/"
+                           style="background:rgba(231,76,60,0.3);border:1px solid rgba(231,76,60,0.5);border-radius:6px;padding:6px 14px;color:#ffc9c9">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header gradient-bg text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3><i class="fas fa-bell me-2"></i>Real-Time Alerts 🚨</h3>
+                            <p class="mb-0">Monitor and manage security alerts</p>
+                        </div>
+                        <div>
+                            {% if unacknowledged_count > 0 %}
+                                <span class="badge bg-danger fs-6 pulse">{{ unacknowledged_count }} Unacknowledged</span>
+                            {% else %}
+                                <span class="badge bg-success fs-6">All Clear</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if alerts %}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <button class="btn btn-success btn-sm" onclick="acknowledgeAll()">
+                                        <i class="fas fa-check-double me-1"></i>Acknowledge All
+                                    </button>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="filterAlerts('all')">All</button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="filterAlerts('CRITICAL')">Critical</button>
+                                        <button class="btn btn-outline-warning btn-sm" onclick="filterAlerts('HIGH')">High</button>
+                                        <button class="btn btn-outline-info btn-sm" onclick="filterAlerts('MEDIUM')">Medium</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="alertsContainer">
+                                {% for alert in alerts %}
+                                <div class="alert-card card alert-{{ alert.severity|lower }} mb-3" data-severity="{{ alert.severity }}">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="fas fa-{% if alert.severity == 'CRITICAL' %}exclamation-triangle text-danger{% elif alert.severity == 'HIGH' %}exclamation-circle text-warning{% elif alert.severity == 'MEDIUM' %}info-circle text-info{% else %}check-circle text-success{% endif %} me-2"></i>
+                                                    <h6 class="mb-0">{{ alert.get_alert_type_display }}</h6>
+                                                    <span class="badge bg-{% if alert.severity == 'CRITICAL' %}danger{% elif alert.severity == 'HIGH' %}warning{% elif alert.severity == 'MEDIUM' %}info{% else %}success{% endif %} ms-2">
+                                                        {{ alert.severity }}
+                                                    </span>
+                                                    {% if not alert.acknowledged %}
+                                                        <span class="badge bg-secondary ms-1 pulse">New</span>
+                                                    {% endif %}
+                                                </div>
+                                                <p class="text-muted mb-1">{{ alert.message }}</p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>{{ alert.triggered_at|date:"M d, Y H:i:s" }}
+                                                </small>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                {% if not alert.acknowledged %}
+                                                    <button class="btn btn-outline-success btn-sm" onclick="acknowledgeAlert({{ alert.id }})">
+                                                        <i class="fas fa-check me-1"></i>Acknowledge
+                                                    </button>
+                                                {% else %}
+                                                    <div class="text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Acknowledged
+                                                        <br><small>{{ alert.acknowledged_at|date:"M d, H:i" }}</small>
+                                                    </div>
+                                                {% endif %}
+                                                <button class="btn btn-outline-info btn-sm ms-1" data-bs-toggle="modal" data-bs-target="#alertModal{{ alert.id }}">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Alert Detail Modal -->
+                                <div class="modal fade" id="alertModal{{ alert.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Alert Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <strong>Alert Type:</strong> {{ alert.get_alert_type_display }}
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <strong>Severity:</strong> 
+                                                        <span class="badge bg-{% if alert.severity == 'CRITICAL' %}danger{% elif alert.severity == 'HIGH' %}warning{% elif alert.severity == 'MEDIUM' %}info{% else %}success{% endif %}">
+                                                            {{ alert.severity }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <div class="mb-3">
+                                                    <strong>Message:</strong>
+                                                    <p>{{ alert.message }}</p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <strong>Triggered At:</strong> {{ alert.triggered_at }}
+                                                </div>
+                                                {% if alert.data %}
+                                                <div class="mb-3">
+                                                    <strong>Additional Data:</strong>
+                                                    <pre class="bg-light p-2 rounded">{{ alert.data|pprint }}</pre>
+                                                </div>
+                                                {% endif %}
+                                                {% if alert.acknowledged %}
+                                                <div class="alert alert-success">
+                                                    <strong>Acknowledged:</strong> {{ alert.acknowledged_at }}
+                                                    {% if alert.acknowledged_by %}
+                                                        by {{ alert.acknowledged_by.username }}
+                                                    {% endif %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                {% if not alert.acknowledged %}
+                                                    <button type="button" class="btn btn-success" onclick="acknowledgeAlert({{ alert.id }})">
+                                                        <i class="fas fa-check me-1"></i>Acknowledge
+                                                    </button>
+                                                {% endif %}
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                                <h5 class="text-success">No Alerts</h5>
+                                <p class="text-muted">Your system is running smoothly with no security alerts</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function acknowledgeAlert(alertId) {
+            fetch(`{% url 'acknowledge_alert' 0 %}`.replace('/0/', '/' + alertId + '/'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => { if (data.status === 'success') location.reload(); })
+            .catch(() => alert('Error acknowledging alert'));
+        }
+
+        function acknowledgeAll() {
+            if (confirm('Acknowledge all unacknowledged alerts?')) {
+                // Implementation would acknowledge all alerts
+                location.reload();
+            }
+        }
+
+        function filterAlerts(severity) {
+            const alerts = document.querySelectorAll('.alert-card');
+            alerts.forEach(alert => {
+                if (severity === 'all' || alert.dataset.severity === severity) {
+                    alert.style.display = 'block';
+                } else {
+                    alert.style.display = 'none';
+                }
+            });
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

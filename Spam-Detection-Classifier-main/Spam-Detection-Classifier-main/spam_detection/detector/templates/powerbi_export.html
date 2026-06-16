@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Integration - Spam Detector</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .feature-card { transition: transform 0.2s; }
+        .feature-card:hover { transform: translateY(-5px); }
+        .powerbi-logo { color: #F2C811; }
+    </style>
+</head>
+<body class="bg-light">
+        <!-- Unified Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg" style="box-shadow:0 2px 10px rgba(0,0,0,0.15)">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="fas fa-shield-alt me-2"></i>SpamShield AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'model_metrics' %}">
+                            <i class="fas fa-chart-line me-1"></i>Metrics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blocked_emails' %}">
+                            <i class="fas fa-ban me-1"></i>Blocked
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'real_time_alerts' %}">
+                            <i class="fas fa-bell me-1"></i>Alerts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'alert_settings' %}">
+                            <i class="fas fa-cog me-1"></i>Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'powerbi_export' %}">
+                            <i class="fas fa-file-export me-1"></i>Export
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'documentation' %}">
+                            <i class="fas fa-book me-1"></i>Docs
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="/"
+                           style="background:rgba(231,76,60,0.3);border:1px solid rgba(231,76,60,0.5);border-radius:6px;padding:6px 14px;color:#ffc9c9">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header gradient-bg text-white text-center">
+                        <h3><i class="fas fa-chart-bar powerbi-logo me-2"></i>Power BI Integration 📈</h3>
+                        <p class="mb-0">Export data for executive-level fraud analytics and business intelligence</p>
+                    </div>
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Export Form -->
+                        <div class="row mb-5">
+                            <div class="col-lg-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-download me-2"></i>Export Data</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="post">
+
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Data Type</label>
+                                                    <select name="export_type" class="form-select">
+                                                        <option value="all">All Data (Recommended)</option>
+                                                        <option value="blocked_emails">Blocked Emails</option>
+                                                        <option value="model_metrics">Model Performance</option>
+                                                        <option value="alert_summary">Alert Summary</option>
+                                                        <option value="trend_analysis">Trend Analysis</option>
+                                                        <option value="feedback_analysis">Feedback Analysis</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Date Range</label>
+                                                    <select name="date_range" class="form-select">
+                                                        <option value="7">Last 7 days</option>
+                                                        <option value="30" selected>Last 30 days</option>
+                                                        <option value="90">Last 90 days</option>
+                                                        <option value="365">Last year</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Export Format</label>
+                                                    <select name="format" class="form-select">
+                                                        <option value="json">JSON (Recommended)</option>
+                                                        <option value="csv">CSV</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3 d-flex align-items-end">
+                                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                                        <i class="fas fa-download me-2"></i>Export Data
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-info-circle fa-2x text-info mb-3"></i>
+                                        <h6>Quick Start</h6>
+                                        <p class="small text-muted">
+                                            1. Select "All Data" and "Last 30 days"<br>
+                                            2. Choose JSON format<br>
+                                            3. Import into Power BI<br>
+                                            4. Use our pre-configured dashboard
+                                        </p>
+                                        <a href="{% url 'powerbi_config' %}" class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-cog me-1"></i>Get Dashboard Config
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="row mb-5">
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                                        <h6>Trend Analysis</h6>
+                                        <p class="small text-muted">Daily spam detection patterns and volume trends</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-bullseye fa-3x text-success mb-3"></i>
+                                        <h6>Performance Metrics</h6>
+                                        <p class="small text-muted">Model accuracy, precision, recall, and F1 scores</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-bell fa-3x text-warning mb-3"></i>
+                                        <h6>Alert Analytics</h6>
+                                        <p class="small text-muted">Real-time alert patterns and response times</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card feature-card text-center h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-3x text-info mb-3"></i>
+                                        <h6>User Feedback</h6>
+                                        <p class="small text-muted">Feedback analysis and model improvement insights</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pre-configured Visualizations -->
+                        <div class="row mb-5">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-chart-pie me-2"></i>Pre-configured Visualizations</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-chart-area me-2 text-primary"></i>Executive Dashboard</h6>
+                                                <ul class="list-unstyled ms-3">
+                                                    <li><i class="fas fa-check text-success me-2"></i>Spam Detection Trends</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Confidence Level Distribution</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Model Performance KPIs</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Alert Summary Cards</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-chart-bar me-2 text-info"></i>Operational Dashboard</h6>
+                                                <ul class="list-unstyled ms-3">
+                                                    <li><i class="fas fa-check text-success me-2"></i>Hourly Spam Distribution</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Source Analysis</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Risk Level Breakdown</li>
+                                                    <li><i class="fas fa-check text-success me-2"></i>Response Time Metrics</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export History -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-history me-2"></i>Export History</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if export_history %}
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Export Type</th>
+                                                            <th>Date Range</th>
+                                                            <th>Exported At</th>
+                                                            <th>File Size</th>
+                                                            <th>Records</th>
+                                                            <th>Exported By</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for export in export_history %}
+                                                        <tr>
+                                                            <td>
+                                                                <span class="badge bg-primary">{{ export.export_type }}</span>
+                                                            </td>
+                                                            <td>{{ export.date_range_days }} days</td>
+                                                            <td>{{ export.exported_at|date:"M d, Y H:i" }}</td>
+                                                            <td>
+                                                                {% if export.file_size %}
+                                                                    {{ export.file_size|filesizeformat }}
+                                                                {% else %}
+                                                                    -
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                {% if export.record_count %}
+                                                                    {{ export.record_count|floatformat:0 }}
+                                                                {% else %}
+                                                                    -
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                {% if export.exported_by %}
+                                                                    {{ export.exported_by.username }}
+                                                                {% else %}
+                                                                    System
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center py-4">
+                                                <i class="fas fa-file-export fa-3x text-muted mb-3"></i>
+                                                <h6 class="text-muted">No exports yet</h6>
+                                                <p class="text-muted">Your export history will appear here</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

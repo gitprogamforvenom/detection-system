@@ -1,0 +1,87 @@
+{
+  "visualizations": {
+    "pie_chart": {
+      "file": "attractive_pie_risk_levels.csv",
+      "values": "count",
+      "legend": "risk_level",
+      "colors": [
+        "#FF0000",
+        "#FF6600",
+        "#FFCC00",
+        "#66CC00",
+        "#00CC00"
+      ],
+      "tooltip": [
+        "total_amount",
+        "avg_score",
+        "percentage"
+      ]
+    },
+    "stacked_bar": {
+      "file": "attractive_stacked_hourly.csv",
+      "axis": "hour",
+      "values": [
+        "fraud_transactions",
+        "normal_transactions"
+      ],
+      "colors": [
+        "#FF4444",
+        "#4444FF"
+      ],
+      "tooltip": [
+        "fraud_rate",
+        "avg_amount"
+      ]
+    },
+    "donut_chart": {
+      "file": "attractive_donut_amounts.csv",
+      "values": "transaction_count",
+      "legend": "amount_category",
+      "tooltip": [
+        "total_value",
+        "avg_risk",
+        "fraud_count"
+      ]
+    },
+    "funnel_chart": {
+      "file": "attractive_funnel_pipeline.csv",
+      "category": "stage",
+      "values": "count",
+      "tooltip": [
+        "percentage",
+        "conversion_rate"
+      ]
+    },
+    "treemap": {
+      "file": "attractive_treemap_risk_amount.csv",
+      "group": "size_category",
+      "details": "risk_category",
+      "values": "total_value",
+      "color_saturation": "avg_risk_score"
+    },
+    "waterfall": {
+      "file": "attractive_waterfall_daily.csv",
+      "category": "date",
+      "values": "daily_change",
+      "breakdown": "change_type"
+    },
+    "stacked_100": {
+      "file": "attractive_stacked100_timeperiods.csv",
+      "axis": "time_period",
+      "values": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "minimal"
+      ],
+      "colors": [
+        "#FF0000",
+        "#FF6600",
+        "#FFCC00",
+        "#66CC00",
+        "#00CC00"
+      ]
+    }
+  }
+}

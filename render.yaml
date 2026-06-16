@@ -1,0 +1,64 @@
+services:
+  # 1. SentinelLedger Gateway Web Service (Publicly Accessible)
+  - type: web
+    name: sentinelledger-gateway
+    env: python
+    buildCommand: pip install -r launcher/requirements.txt
+    startCommand: gunicorn --chdir launcher serve:app
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DATABASE
+        value: sentinelledger
+      - key: FRAUD_BASE
+        value: http://fraudguard:5000
+      - key: SPAM_BASE
+        value: http://spamshield:5001
+
+  # 2. FraudGuard Private Service (Internal Only)
+  - type: private
+    name: fraudguard
+    env: python
+    buildCommand: pip install -r "pbi card/requirements.txt"
+    startCommand: gunicorn --chdir "pbi card" --bind 0.0.0.0:5000 app:app
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DATABASE
+        value: sentinelledger
+      - key: PORT
+        value: "5000"
+
+  # 3. SpamShield Private Service (Internal Only)
+  - type: private
+    name: spamshield
+    env: python
+    buildCommand: pip install -r "Spam-Detection-Classifier-main/Spam-Detection-Classifier-main/spam_detection/requirements.txt"
+    startCommand: gunicorn --chdir "Spam-Detection-Classifier-main/Spam-Detection-Classifier-main/spam_detection" --bind 0.0.0.0:5001 spam_detection.wsgi:application
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DATABASE
+        value: sentinelledger
+      - key: PORT
+        value: "5001"
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false  # Must point to the public gateway URL, e.g., https://sentinelledger-gateway.onrender.com
