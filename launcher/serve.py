@@ -31,11 +31,11 @@ app.permanent_session_lifetime = timedelta(hours=8)
 bcrypt = Bcrypt(app)
 
 DB_CONFIG = {
-    "host":     os.environ.get("DB_HOST", "localhost"),
-    "port":     int(os.environ.get("DB_PORT", 33066)),
+    "host":     os.environ.get("DB_HOST", "mysql-kuif.railway.internal"),
+    "port":     int(os.environ.get("DB_PORT", 3306)),
     "user":     os.environ.get("DB_USER", "root"),
-    "password": os.environ.get("DB_PASSWORD", "Vem12345@"),
-    "database": os.environ.get("DB_DATABASE", "sentinelledger")
+    "password": os.environ.get("DB_PASSWORD", "smbIROLNRlRhchdzTGuNaqNWdHkBKaay"),
+    "database": os.environ.get("DB_DATABASE", "railway")
 }
 
 def get_db():
@@ -437,7 +437,7 @@ def _proxy(target_base, path):
         url += "?" + request.query_string.decode("utf-8")
     fwd = {k: v for k, v in request.headers
            if k.lower() not in ("host","content-length","origin","referer","x-user-id","x-user-role","x-user-username")}
-    fwd["X-Forwarded-Host"]  = "localhost:8000"
+    fwd["X-Forwarded-Host"]  = "mysql-kuif.railway.internal:8000"
     fwd["X-Forwarded-Proto"] = "http"
     if logged_in():
         fwd["X-User-Id"] = str(session["user_id"])

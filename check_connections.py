@@ -12,9 +12,9 @@ all_ok = True
 print('\n[1] MySQL Database (localhost:3306)')
 try:
     conn = mysql.connector.connect(
-        host='localhost', port=33066,
-        user='root', password='Vem12345@',
-        database='sentinelledger'
+        host='mysql-kuif.railway.internal', port=3306,
+        user='root', password='smbIROLNRlRhchdzTGuNaqNWdHkBKaay',
+        database='railway'
     )
     cur = conn.cursor()
     cur.execute('SHOW TABLES')

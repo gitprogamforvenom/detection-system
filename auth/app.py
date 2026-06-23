@@ -11,11 +11,11 @@ app.permanent_session_lifetime = timedelta(hours=8)
 bcrypt = Bcrypt(app)
 
 DB_CONFIG = {
-    "host":     "localhost",
+    "host":     "mysql-kuif.railway.internal",
     "port":     3306,
     "user":     "root",
-    "password": "Vem12345@",
-    "database": "sentinelledger"
+    "password": "smbIROLNRlRhchdzTGuNaqNWdHkBKaay",
+    "database": "railway"
 }
 
 def get_db():

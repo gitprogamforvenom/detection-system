@@ -34,15 +34,15 @@ print("\n[2] MYSQL CONNECTION")
 try:
     import mysql.connector
     conn = mysql.connector.connect(
-        host="localhost", port=33066,
+        host="mysql-kuif.railway.internal", port=3306,
         user="root", password="Vem12345@",
-        database="sentinelledger"
+        database="railway"
     )
     cur = conn.cursor()
     cur.execute("SHOW TABLES")
     tables = [r[0] for r in cur.fetchall()]
     print(f"  OK   Connected to MySQL port 3306")
-    print(f"  OK   Database: sentinelledger")
+    print(f"  OK   Database: railway")
     print(f"  OK   Tables: {tables}")
 
     # check columns
