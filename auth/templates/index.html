@@ -4,26 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SentinelLedger | {{ username }} ({{ role }}) — Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     /* ── Reset & Base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --purple:  #7c3aed;
-      --blue:    #2563eb;
-      --cyan:    #0ea5e9;
-      --dark:    #0f0c29;
-      --card-bg: rgba(255,255,255,0.06);
-      --border:  rgba(255,255,255,0.12);
-      --text:    #e2e8f0;
-      --muted:   #94a3b8;
+      --primary:      #2563eb;
+      --primary-hover:#1d4ed8;
+      --bg-white:     #ffffff;
+      --bg-light:     #f3f4f6;
+      --text-dark:    #111827;
+      --text-muted:   #4b5563;
+      --border:       #e5e7eb;
+      --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-lg:    0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+      --radius-sm:    6px;
+      --radius-md:    8px;
+      --radius-lg:    10px;
     }
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-white);
       min-height: 100vh;
-      color: var(--text);
+      color: var(--text-dark);
+      line-height: 1.5;
     }
 
     /* ── Navbar ── */
@@ -31,183 +37,196 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 1rem 2.5rem;
-      background: rgba(15,12,41,0.75);
-      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .nav-brand {
       font-size: 1.25rem; font-weight: 700;
-      background: linear-gradient(90deg, #a78bfa, #60a5fa);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      color: var(--text-dark);
     }
     .nav-links { display: flex; gap: 0.25rem; }
     .nav-links a {
-      color: var(--muted); text-decoration: none;
-      padding: 0.45rem 1rem; border-radius: 8px;
+      color: var(--text-muted); text-decoration: none;
+      padding: 0.45rem 1rem; border-radius: var(--radius-sm);
       font-size: 0.9rem; font-weight: 500;
-      transition: color 0.2s, background 0.2s;
+      transition: color 0.2s, background-color 0.2s;
     }
-    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a:hover { color: var(--primary); background: var(--bg-light); }
     .nav-login {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.45rem 1.1rem; border-radius: 8px;
+      padding: 0.45rem 1.1rem; border-radius: var(--radius-md);
       font-size: 0.9rem; font-weight: 600;
-      background: linear-gradient(135deg, var(--purple), var(--blue));
+      background: var(--primary);
       color: #fff !important; text-decoration: none;
-      box-shadow: 0 2px 12px rgba(124,58,237,0.35);
-      transition: opacity 0.2s, transform 0.2s;
+      transition: background-color 0.2s, transform 0.2s;
     }
-    .nav-login:hover { opacity: 0.88; transform: translateY(-1px); background: linear-gradient(135deg, var(--purple), var(--blue)) !important; }
-    .badge-role { padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(124,58,237,0.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.3); }
-     .btn-logout { padding: 7px 18px; border-radius: 8px; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.2s; }
-     .btn-logout:hover { background: rgba(239,68,68,0.35); }
+    .nav-login:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .badge-role {
+      padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;
+    }
+    .btn-logout {
+      padding: 7px 18px; border-radius: var(--radius-sm);
+      background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
+      text-decoration: none; font-size: 13px; font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-logout:hover { background: #fecaca; }
 
     /* ── Hero ── */
     #home {
       min-height: 100vh;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; padding: 6rem 1.5rem 3rem;
+      text-align: center; padding: 7rem 1.5rem 4rem;
       position: relative; overflow: hidden;
-    }
-    #home::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,58,237,0.18) 0%, transparent 70%);
-      pointer-events: none;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
     }
     .hero-badge {
       display: inline-block;
-      background: rgba(124,58,237,0.2);
-      border: 1px solid rgba(124,58,237,0.4);
-      color: #c4b5fd; font-size: 0.78rem; font-weight: 600;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af; font-size: 0.78rem; font-weight: 600;
       letter-spacing: 1.5px; text-transform: uppercase;
       padding: 0.35rem 1rem; border-radius: 50px;
       margin-bottom: 1.5rem;
     }
     .hero-title {
-      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
       font-weight: 800; line-height: 1.15;
-      background: linear-gradient(135deg, #fff 30%, #a78bfa 70%, #60a5fa 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      color: var(--text-dark);
       margin-bottom: 1.2rem;
+      letter-spacing: -0.02em;
     }
     .hero-sub {
       font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: var(--muted); max-width: 560px;
+      color: var(--text-muted); max-width: 600px;
       line-height: 1.7; margin-bottom: 2.5rem;
     }
     .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
     .btn {
       display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.8rem; border-radius: 50px;
+      padding: 0.75rem 1.8rem; border-radius: var(--radius-md);
       font-size: 0.95rem; font-weight: 600;
       text-decoration: none; border: none; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
     }
-    .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn:hover { transform: translateY(-2px); }
     .btn-primary {
-      background: linear-gradient(135deg, var(--purple), var(--blue));
+      background: var(--primary);
       color: #fff;
-      box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+      box-shadow: var(--shadow-md);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: var(--shadow-lg);
     }
     .btn-outline {
       background: transparent;
       border: 1px solid var(--border);
-      color: var(--text);
+      color: var(--text-dark);
     }
-    .btn-outline:hover { background: rgba(255,255,255,0.06); }
+    .btn-outline:hover { background: var(--bg-light); }
     .hero-stats {
-      display: flex; gap: 3rem; margin-top: 4rem;
+      display: flex; gap: 4rem; margin-top: 4.5rem;
       flex-wrap: wrap; justify-content: center;
     }
     .hero-stat { text-align: center; }
-    .hero-stat strong { display: block; font-size: 1.8rem; font-weight: 700; color: #fff; }
-    .hero-stat span { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .hero-stat strong { display: block; font-size: 2.2rem; font-weight: 700; color: var(--text-dark); }
+    .hero-stat span { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
     /* ── Section shared ── */
-    section { padding: 5rem 1.5rem; }
+    section { padding: 6rem 1.5rem; }
     .section-inner { max-width: 1100px; margin: 0 auto; }
     .section-label {
       font-size: 0.75rem; font-weight: 600; letter-spacing: 2px;
-      text-transform: uppercase; color: #a78bfa;
+      text-transform: uppercase; color: var(--primary);
       margin-bottom: 0.6rem;
     }
     .section-title {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 700; color: #fff;
+      font-weight: 700; color: var(--text-dark);
       margin-bottom: 0.8rem;
+      letter-spacing: -0.01em;
     }
-    .section-desc { color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+    .section-desc { color: var(--text-muted); max-width: 600px; line-height: 1.7; margin-bottom: 3rem; }
 
     /* ── Project Cards ── */
-    #projects { background: rgba(0,0,0,0.15); }
+    #projects { background: var(--bg-light); }
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
       gap: 2rem;
     }
     .card {
-      background: var(--card-bg);
+      background: var(--bg-white);
       border: 1px solid var(--border);
-      backdrop-filter: blur(14px);
-      border-radius: 20px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
       transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: var(--shadow-md);
     }
     .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
     }
     .card-header {
       padding: 1.8rem 1.8rem 0;
       display: flex; align-items: flex-start; gap: 1rem;
     }
     .card-icon {
-      width: 52px; height: 52px; border-radius: 14px;
+      width: 52px; height: 52px; border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.6rem; flex-shrink: 0;
     }
-    .icon-purple { background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.3); }
-    .icon-blue   { background: rgba(37,99,235,0.2);  border: 1px solid rgba(37,99,235,0.3); }
+    .icon-purple { background: #f3e8ff; border: 1px solid #e9d5ff; }
+    .icon-blue   { background: #dbeafe;  border: 1px solid #bfdbfe; }
     .card-meta { flex: 1; }
     .card-tag {
       font-size: 0.7rem; font-weight: 600; letter-spacing: 1.5px;
       text-transform: uppercase; padding: 0.2rem 0.7rem;
       border-radius: 50px; margin-bottom: 0.5rem; display: inline-block;
     }
-    .tag-purple { background: rgba(124,58,237,0.2); color: #c4b5fd; }
-    .tag-blue   { background: rgba(37,99,235,0.2);  color: #93c5fd; }
-    .card-title { font-size: 1.2rem; font-weight: 700; color: #fff; }
+    .tag-purple { background: #f3e8ff; color: #6b21a8; }
+    .tag-blue   { background: #dbeafe;  color: #1e40af; }
+    .card-title { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
     .card-body { padding: 1rem 1.8rem; }
-    .card-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.2rem; }
+    .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.2rem; }
     .card-tech {
       display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.4rem;
     }
     .tech-pill {
       font-size: 0.72rem; font-weight: 500;
       padding: 0.2rem 0.65rem; border-radius: 50px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--muted);
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
     }
     .card-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
     .btn-open-purple {
-      background: linear-gradient(135deg, var(--purple), #4f46e5);
-      color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+      background: #6d28d9;
+      color: #fff;
+    }
+    .btn-open-purple:hover {
+      background: #5b21b6;
     }
     .btn-open-blue {
-      background: linear-gradient(135deg, var(--blue), var(--cyan));
-      color: #fff; box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-open-blue:hover {
+      background: var(--primary-hover);
     }
     .btn-preview {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border); color: var(--text);
+      background: var(--bg-white);
+      border: 1px solid var(--border); color: var(--text-dark);
     }
-    .btn-sm { padding: 0.55rem 1.2rem; font-size: 0.85rem; }
+    .btn-preview:hover { background: var(--bg-light); }
+    .btn-sm { padding: 0.55rem 1.2rem; font-size: 0.85rem; border-radius: var(--radius-sm); }
     .card-port {
       padding: 0.8rem 1.8rem 1.4rem;
-      font-size: 0.75rem; color: #475569;
+      font-size: 0.75rem; color: var(--text-muted);
       border-top: 1px solid var(--border);
       display: flex; align-items: center; gap: 0.4rem;
     }
@@ -220,101 +239,243 @@
     /* ── iframe Preview Modal ── */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(6px);
       align-items: center; justify-content: center;
     }
     .modal-overlay.active { display: flex; }
     .modal-box {
       width: 92vw; height: 88vh;
-      background: #1e1b4b;
+      background: var(--bg-white);
       border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden;
+      border-radius: var(--radius-lg); overflow: hidden;
       display: flex; flex-direction: column;
+      box-shadow: var(--shadow-lg);
     }
     .modal-bar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0.75rem 1.2rem;
-      background: rgba(0,0,0,0.3);
+      background: var(--bg-light);
       border-bottom: 1px solid var(--border);
     }
-    .modal-bar span { font-size: 0.85rem; color: var(--muted); }
+    .modal-bar span { font-size: 0.85rem; color: var(--text-dark); font-weight: 600; }
     .modal-close {
-      background: rgba(239,68,68,0.2); border: none; color: #f87171;
+      background: #fee2e2; border: none; color: #991b1b;
       width: 28px; height: 28px; border-radius: 50%;
       font-size: 1rem; cursor: pointer; display: flex;
       align-items: center; justify-content: center;
-      transition: background 0.2s;
+      transition: background-color 0.2s;
     }
-    .modal-close:hover { background: rgba(239,68,68,0.4); }
+    .modal-close:hover { background: #fecaca; }
     .modal-box iframe { flex: 1; border: none; width: 100%; }
     .modal-note {
       padding: 0.5rem 1.2rem; font-size: 0.72rem;
-      color: #64748b; background: rgba(0,0,0,0.2);
+      color: var(--text-muted); background: var(--bg-light);
       border-top: 1px solid var(--border);
     }
 
-    /* ── About ── */
-    #about { }
+    /* ── About & Run ── */
+    #about { background: var(--bg-light); }
     .about-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2rem;
     }
     .about-card {
-      background: var(--card-bg);
+      background: var(--bg-white);
       border: 1px solid var(--border);
-      border-radius: 16px; padding: 2rem;
+      border-radius: var(--radius-lg); padding: 2rem;
+      box-shadow: var(--shadow-sm);
     }
     .about-card h3 {
-      font-size: 1.05rem; font-weight: 600; color: #fff;
+      font-size: 1.1rem; font-weight: 700; color: var(--text-dark);
       margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
     }
-    .about-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.75; }
+    .about-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.75; }
     .tech-list { list-style: none; margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
     .tech-list li {
-      font-size: 0.85rem; color: var(--muted);
+      font-size: 0.85rem; color: var(--text-muted);
       display: flex; align-items: center; gap: 0.5rem;
     }
-    .tech-list li::before { content: '▸'; color: #a78bfa; }
+    .tech-list li::before { content: '▸'; color: var(--primary); }
 
-    /* ── How to Run ── */
-    #run { background: rgba(0,0,0,0.15); }
+    #run { background: var(--bg-white); }
     .run-steps {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.5rem;
     }
     .run-step {
-      background: var(--card-bg);
+      background: var(--bg-white);
       border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.5rem;
+      border-radius: var(--radius-md); padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
     }
     .step-num {
       width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--purple), var(--blue));
+      background: var(--primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 0.8rem; font-weight: 700; color: #fff;
       margin-bottom: 0.8rem;
     }
-    .run-step h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+    .run-step h4 { font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; }
     .run-step code {
       display: block; margin-top: 0.6rem;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px; padding: 0.6rem 0.9rem;
-      font-size: 0.78rem; color: #a78bfa;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 0.6rem 0.9rem;
+      font-size: 0.78rem; color: #1e293b;
       font-family: 'Courier New', monospace;
       word-break: break-all;
     }
-    .run-step p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+    .run-step p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
 
     /* ── Footer ── */
     footer {
       text-align: center; padding: 2rem 1.5rem;
       border-top: 1px solid var(--border);
-      color: #475569; font-size: 0.82rem;
+      color: var(--text-muted); font-size: 0.82rem;
+      background: var(--bg-light);
     }
-    footer span { color: #a78bfa; }
+    footer span { color: var(--primary); font-weight: 600; }
+
+    /* ── Architecture Extra Styles ── */
+    #architecture { background: var(--bg-white); }
+    .architecture-diagram-container {
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+    .architecture-diagram-container h3 {
+      color: var(--text-dark);
+    }
+    
+    .tabs-container {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .tabs-container h3 {
+      color: var(--text-dark);
+    }
+    .tab-btn-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--primary) !important;
+      border-bottom: 2px solid var(--primary) !important;
+      font-weight: 600 !important;
+    }
+    .tab-content h4 {
+      color: var(--text-dark);
+    }
+    .tab-content p, .tab-content ol, .tab-content li {
+      color: var(--text-muted);
+    }
+    .formula-box {
+      background: var(--bg-light);
+      padding: 1.2rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    .formula-code {
+      background: var(--bg-white);
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: var(--primary);
+      margin-bottom: 0.8rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .table-container {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+    .table-container h3 {
+      color: var(--text-dark);
+    }
+    .table-container p {
+      color: var(--text-muted);
+    }
+    .rbac-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+      min-width: 600px;
+    }
+    .rbac-table th {
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    .rbac-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .blockchain-container {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .blockchain-container h3 {
+      color: var(--text-dark);
+    }
+    .blockchain-container p, .blockchain-container ul {
+      color: var(--text-muted);
+    }
+    .blockchain-block {
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      width: 220px;
+      font-size: 0.78rem;
+    }
+    .blockchain-block-title {
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.4rem;
+    }
+    .blockchain-block-hash {
+      font-family: monospace;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
@@ -339,7 +500,7 @@
       <a href="#run">Run</a>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
-      <span style="color:rgba(255,255,255,0.5);font-size:13px">👤 {{ username }}</span>
+      <span style="color:var(--text-muted);font-size:13px;font-weight:500">👤 {{ username }}</span>
       <span class="badge-role">{{ role }}</span>
       <a class="btn-logout" href="/logout">Logout</a>
     </div>
@@ -348,7 +509,7 @@
   <!-- ── Hero ── -->
   <section id="home">
     <div class="hero-badge">✦ Machine Learning &amp; Data Analytics</div>
-    <h1 class="hero-title">AI Insights &amp;<br/>Data Projects</h1>
+    <h1 class="hero-title">EMAIIL SPAM DETECTION &amp;<br/>CREDIT CARD FRAUD DETECTION MACHANISM</h1>
     <p class="hero-sub">
       Two independent AI-powered applications — financial fraud detection
       with Power BI analytics, and intelligent email spam classification.
@@ -447,7 +608,8 @@
     </div>
   </section>
 
-  <section id="architecture" style="background: rgba(0, 0, 0, 0.05);">
+  <!-- ── Architecture ── -->
+  <section id="architecture">
     <div class="section-inner">
       <p class="section-label">System Architecture</p>
       <h2 class="section-title">Data Flow &amp; Security Architecture</h2>
@@ -456,10 +618,10 @@
       <div class="architecture-flow" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
         
         <div class="about-card">
-          <h3 style="color: #60a5fa; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+          <h3 style="color: #2563eb; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="font-size: 1.3rem;">🔒</span> 1. Gateway &amp; Anti-Spoofing
           </h3>
-          <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">The launcher gateway on port 8000 intercepts all incoming requests to FraudGuard and SpamShield, enforcing critical network security boundaries:</p>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">The launcher gateway on port 8000 intercepts all incoming requests to FraudGuard and SpamShield, enforcing critical network security boundaries:</p>
           <ul class="tech-list">
             <li><strong>Header Sanitization</strong>: Strips user-supplied header tokens (such as <code>X-User-Id</code>, <code>X-User-Role</code>) to block spoofing attempts.</li>
             <li><strong>Verified Injection</strong>: Securely decodes backend Flask sessions and injects verified user identity context into proxied requests.</li>
@@ -468,10 +630,10 @@
         </div>
 
         <div class="about-card">
-          <h3 style="color: #a78bfa; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+          <h3 style="color: #6d28d9; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="font-size: 1.3rem;">💾</span> 2. Multi-Tenant Data Isolation
           </h3>
-          <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">Privacy is maintained by isolating all system entities at the database, session, and file storage level:</p>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">Privacy is maintained by isolating all system entities at the database, session, and file storage level:</p>
           <ul class="tech-list">
             <li><strong>Database Partitioning</strong>: Every processed anomaly record, blocked item, model metric, and alert log is explicitly tagged with the owner's User ID.</li>
             <li><strong>Dashboard Separation</strong>: Queries filter datasets dynamically. A standard user sees a completely clean dashboard on first login, with zero data leakage.</li>
@@ -480,10 +642,10 @@
         </div>
 
         <div class="about-card">
-          <h3 style="color: #34d399; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+          <h3 style="color: #059669; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="font-size: 1.3rem;">🧠</span> 3. Dual ML Ensemble Engine
           </h3>
-          <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">Two independent machine learning configurations run concurrently to process text and tabular transaction records:</p>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.75; margin-bottom: 0.8rem;">Two independent machine learning configurations run concurrently to process text and tabular transaction records:</p>
           <ul class="tech-list">
             <li><strong>Unsupervised Fraud Engine</strong>: FraudGuard applies an ensemble of Isolation Forest, One-Class SVM, and DBSCAN to detect transaction anomalies.</li>
             <li><strong>Supervised Spam Engine</strong>: SpamShield uses TF-IDF and a voting ensemble (Random Forest, SVM, LR) to classify messages, with model retraining.</li>
@@ -494,25 +656,25 @@
       </div>
 
       <!-- NEW: Interactive Architecture SVG Flowchart -->
-      <div class="architecture-diagram-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem; text-align: center;">
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+      <div class="architecture-diagram-container">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
           <span>🌐</span> System Topology &amp; Header-Injection Architecture
         </h3>
-        <svg viewBox="0 0 900 360" style="width: 100%; height: auto; font-family: 'Poppins', sans-serif;">
+        <svg viewBox="0 0 900 360" style="width: 100%; height: auto; font-family: 'Inter', sans-serif;">
           <style>
-            .node { fill: rgba(15, 12, 41, 0.95); stroke: rgba(255, 255, 255, 0.12); stroke-width: 1.5; }
-            .node-highlight { fill: rgba(124, 58, 237, 0.12); stroke: #7c3aed; stroke-width: 2; }
-            .node-blue { fill: rgba(37, 99, 235, 0.12); stroke: #2563eb; stroke-width: 2; }
-            .node-green { fill: rgba(16, 185, 129, 0.12); stroke: #10b981; stroke-width: 2; }
-            .text-title { fill: #ffffff; font-size: 12px; font-weight: 700; }
-            .text-sub { fill: #94a3b8; font-size: 10px; }
-            .arrow { stroke: rgba(255, 255, 255, 0.25); stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
-            .arrow-pulse { stroke: #a78bfa; stroke-dasharray: 6, 6; animation: dash 15s linear infinite; }
+            .node { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+            .node-highlight { fill: #eff6ff; stroke: #2563eb; stroke-width: 2; }
+            .node-blue { fill: #f3e8ff; stroke: #6d28d9; stroke-width: 2; }
+            .node-green { fill: #f0fdf4; stroke: #10b981; stroke-width: 2; }
+            .text-title { fill: #111827; font-size: 12px; font-weight: 700; }
+            .text-sub { fill: #4b5563; font-size: 10px; }
+            .arrow { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+            .arrow-pulse { stroke: #2563eb; stroke-dasharray: 6, 6; animation: dash 15s linear infinite; }
             @keyframes dash { to { stroke-dashoffset: -100; } }
           </style>
           <defs>
             <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-              <polygon points="0 0, 6 3, 0 6" fill="rgba(255, 255, 255, 0.4)" />
+              <polygon points="0 0, 6 3, 0 6" fill="#94a3b8" />
             </marker>
           </defs>
           
@@ -546,28 +708,28 @@
           <!-- Connecting Arrows -->
           <path d="M 180 175 L 260 175" class="arrow arrow-pulse" />
           <path d="M 480 150 L 530 150 L 530 95 L 580 95" class="arrow" />
-          <text class="text-sub" x="490" y="115" style="fill: #93c5fd;">/fraud/*</text>
+          <text class="text-sub" x="490" y="115" style="fill: #6d28d9; font-weight: 600;">/fraud/*</text>
           
           <path d="M 480 200 L 530 200 L 530 255 L 580 255" class="arrow" />
-          <text class="text-sub" x="490" y="245" style="fill: #a7f3d0;">/spam/*</text>
+          <text class="text-sub" x="490" y="245" style="fill: #10b981; font-weight: 600;">/spam/*</text>
         </svg>
-        <p style="font-size: 0.85rem; color: var(--muted); margin-top: 1rem; line-height: 1.6;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.6;">
           <strong>Interactive Architecture Flow:</strong> Requests hitting port 8000 have their authentication checked. The gateway then strips all spoofed credentials and injects verified identity headers (<code>X-User-Id</code>, <code>X-User-Role</code>) before reverse-proxying requests to internal microservices on ports 5000 and 5001.
         </p>
       </div>
 
       <!-- NEW: Interactive ML Pipelines (Tabs) -->
-      <div class="tabs-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem;">
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+      <div class="tabs-container">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
           <span>🧠</span> Advanced Machine Learning Pipelines
         </h3>
         
         <!-- Tab Controls -->
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
-          <button class="tab-btn active" onclick="switchTab(event, 'tab-fraud')" style="background: none; border: none; color: #a78bfa; font-weight: 600; padding: 0.5rem 1rem; cursor: pointer; font-size: 0.95rem; border-bottom: 2px solid #a78bfa; transition: all 0.2s;">
+        <div class="tab-btn-bar">
+          <button class="tab-btn active" onclick="switchTab(event, 'tab-fraud')">
             📊 FraudGuard Unsupervised Ensemble
           </button>
-          <button class="tab-btn" onclick="switchTab(event, 'tab-spam')" style="background: none; border: none; color: var(--muted); font-weight: 500; padding: 0.5rem 1rem; cursor: pointer; font-size: 0.95rem; border-bottom: 2px solid transparent; transition: all 0.2s;">
+          <button class="tab-btn" onclick="switchTab(event, 'tab-spam')">
             🛡️ SpamShield Supervised Ensemble
           </button>
         </div>
@@ -576,11 +738,11 @@
         <div id="tab-fraud" class="tab-content" style="display: block;">
           <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 2.5rem; align-items: start;">
             <div>
-              <h4 style="color: #fff; margin-bottom: 0.8rem; font-size: 1rem;">Unsupervised Anomaly Scoring Pipeline</h4>
-              <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+              <h4 style="margin-bottom: 0.8rem; font-size: 1rem;">Unsupervised Anomaly Scoring Pipeline</h4>
+              <p style="font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
                 FraudGuard performs zero-configuration, zero-label analysis on uploaded financial ledger sheets (CSV/Excel). The pipeline runs in four stages:
               </p>
-              <ol style="margin-left: 1.5rem; color: var(--muted); font-size: 0.88rem; line-height: 1.8; margin-bottom: 1rem;">
+              <ol style="margin-left: 1.5rem; font-size: 0.88rem; line-height: 1.8; margin-bottom: 1rem;">
                 <li><strong>Preprocessing &amp; Scaling</strong>: Non-numeric parameters are automatically trimmed. Variables are scaled using RobustScaler to minimize skew from actual outliers.</li>
                 <li><strong>Dynamic Ensemble Execution</strong>:
                   <ul style="margin-left: 1.2rem; list-style-type: circle;">
@@ -593,15 +755,15 @@
                 <li><strong>Alert Ledger Propagation</strong>: Verified outliers trigger automatic SHA-256 alerts injected directly into the central SentinelLedger database.</li>
               </ol>
             </div>
-            <div style="background: rgba(0,0,0,0.2); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-              <h5 style="color: #93c5fd; margin-bottom: 0.6rem; font-size: 0.9rem;">Ensemble Formula &amp; Scoring</h5>
-              <p style="color: var(--muted); font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.8rem;">
+            <div class="formula-box">
+              <h5 style="color: #1e40af; margin-bottom: 0.6rem; font-size: 0.9rem; font-weight: 700;">Ensemble Formula &amp; Scoring</h5>
+              <p style="font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.8rem;">
                 The aggregate fraud score is calculated by combining normalized scores from all active classifiers:
               </p>
-              <div style="background: rgba(0,0,0,0.4); padding: 0.6rem 0.9rem; border-radius: 6px; font-family: monospace; font-size: 0.82rem; color: #a78bfa; margin-bottom: 0.8rem; text-align: center;">
+              <div class="formula-code">
                 Score = w₁·S_IF + w₂·S_OCSVM + w₃·S_DBSCAN
               </div>
-              <p style="color: var(--muted); font-size: 0.82rem; line-height: 1.6;">
+              <p style="font-size: 0.82rem; line-height: 1.6;">
                 If the combined probability exceeds <strong>0.65</strong>, the record is immediately flagged as fraudulent, hashed into the blockchain audit ledger, and sent to the alerts table.
               </p>
             </div>
@@ -611,11 +773,11 @@
         <div id="tab-spam" class="tab-content" style="display: none;">
           <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 2.5rem; align-items: start;">
             <div>
-              <h4 style="color: #fff; margin-bottom: 0.8rem; font-size: 1rem;">Supervised Voting Ensemble Pipeline</h4>
-              <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
+              <h4 style="margin-bottom: 0.8rem; font-size: 1rem;">Supervised Voting Ensemble Pipeline</h4>
+              <p style="font-size: 0.88rem; line-height: 1.7; margin-bottom: 1rem;">
                 SpamShield analyzes emails, text logs, and bulk text datasets using a pre-trained feature vocabulary:
               </p>
-              <ol style="margin-left: 1.5rem; color: var(--muted); font-size: 0.88rem; line-height: 1.8; margin-bottom: 1rem;">
+              <ol style="margin-left: 1.5rem; font-size: 0.88rem; line-height: 1.8; margin-bottom: 1rem;">
                 <li><strong>TF-IDF Vectorization</strong>: Raw message content is converted into dynamic token frequencies based on term frequency-inverse document frequency weights, excluding common English stop words.</li>
                 <li><strong>Linguistic Feature Extraction</strong>: Extracts meta-level features such as capital letter ratios, link density, special character frequencies, and sentiment analysis scores.</li>
                 <li><strong>Voting Classifier Ensemble</strong>:
@@ -628,15 +790,15 @@
                 <li><strong>Incremental Model Retraining</strong>: Analysts with appropriate permissions can submit newly labeled files to retrain models, shifting the TF-IDF weights to adapt to fresh spam patterns.</li>
               </ol>
             </div>
-            <div style="background: rgba(0,0,0,0.2); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-              <h5 style="color: #a7f3d0; margin-bottom: 0.6rem; font-size: 0.9rem;">Ensemble Voting Method</h5>
-              <p style="color: var(--muted); font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.8rem;">
+            <div class="formula-box">
+              <h5 style="color: #065f46; margin-bottom: 0.6rem; font-size: 0.9rem; font-weight: 700;">Ensemble Voting Method</h5>
+              <p style="font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.8rem;">
                 The final spam decision is determined using soft voting, taking the average of prediction probabilities:
               </p>
-              <div style="background: rgba(0,0,0,0.4); padding: 0.6rem 0.9rem; border-radius: 6px; font-family: monospace; font-size: 0.82rem; color: #a7f3d0; margin-bottom: 0.8rem; text-align: center;">
+              <div class="formula-code" style="color: #059669; border-color: #a7f3d0;">
                 P(Spam) = [P_LR(S) + P_RF(S) + P_SVC(S)] / 3
               </div>
-              <p style="color: var(--muted); font-size: 0.82rem; line-height: 1.6;">
+              <p style="font-size: 0.82rem; line-height: 1.6;">
                 Soft voting provides higher robustness than hard majority voting, as it considers the confidence levels of each individual model before rendering a classification verdict.
               </p>
             </div>
@@ -645,91 +807,91 @@
       </div>
 
       <!-- NEW: Role-Based Access Control (RBAC) Isolation Matrix -->
-      <div class="table-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem; overflow-x: auto;">
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+      <div class="table-container">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
           <span>👥</span> Role-Based Authorization &amp; Isolation Policy
         </h3>
-        <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem;">
+        <p style="font-size: 0.88rem; margin-bottom: 1.5rem;">
           The system enforces user segregation dynamically at the API level based on session variables. Here is how permissions map across roles:
         </p>
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; min-width: 600px;">
+        <table class="rbac-table">
           <thead>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: #fff;">
-              <th style="padding: 0.75rem 1rem;">Role</th>
-              <th style="padding: 0.75rem 1rem;">Scope of Visible Data</th>
-              <th style="padding: 0.75rem 1rem;">File Storage Access</th>
-              <th style="padding: 0.75rem 1rem;">Model Retraining</th>
-              <th style="padding: 0.75rem 1rem;">Audit Access</th>
+            <tr>
+              <th>Role</th>
+              <th>Scope of Visible Data</th>
+              <th>File Storage Access</th>
+              <th>Model Retraining</th>
+              <th>Audit Access</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-              <td style="padding: 0.75rem 1rem; font-weight: 600; color: #a78bfa;">analyst</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Owner-only data (segregated by <code>user_id</code> context).</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Own folder only (<code>uploads/{user_id}/</code>).</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Blocked (Returns 403 / Warning).</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Own logs only.</td>
+            <tr>
+              <td style="font-weight: 600; color: #6d28d9;">analyst</td>
+              <td>Owner-only data (segregated by <code>user_id</code> context).</td>
+              <td>Own folder only (<code>uploads/{user_id}/</code>).</td>
+              <td>Blocked (Returns 403 / Warning).</td>
+              <td>Own logs only.</td>
             </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-              <td style="padding: 0.75rem 1rem; font-weight: 600; color: #60a5fa;">admin</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Global visibility (sees all records across all tenants).</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Global read/write across all user sandboxes.</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);"><span style="color: #34d399;">Authorized</span> (Retrain ensemble models).</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Full action logs &amp; session states.</td>
+            <tr>
+              <td style="font-weight: 600; color: #2563eb;">admin</td>
+              <td>Global visibility (sees all records across all tenants).</td>
+              <td>Global read/write across all user sandboxes.</td>
+              <td><span style="color: #059669; font-weight: 600;">Authorized</span> (Retrain ensemble models).</td>
+              <td>Full action logs &amp; session states.</td>
             </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
-              <td style="padding: 0.75rem 1rem; font-weight: 600; color: #34d399;">auditor</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Read-only access to all transaction &amp; classification logs.</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Read-only access to compiled datasets.</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);">Read-only view.</td>
-              <td style="padding: 0.75rem 1rem; color: var(--muted);"><span style="color: #34d399;">Authorized</span> (Full blockchain log integrity checks).</td>
+            <tr>
+              <td style="font-weight: 600; color: #059669;">auditor</td>
+              <td>Read-only access to all transaction &amp; classification logs.</td>
+              <td>Read-only access to compiled datasets.</td>
+              <td>Read-only view.</td>
+              <td><span style="color: #059669; font-weight: 600;">Authorized</span> (Full blockchain log integrity checks).</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <!-- NEW: Tamper-Proof Audit Ledger (Blockchain Integration) -->
-      <div class="blockchain-container" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem;">
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+      <div class="blockchain-container">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
           <span>🔗</span> Tamper-Proof Audit Ledger (Blockchain Integration)
         </h3>
-        <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.5rem;">
+        <p style="font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.5rem;">
           Whenever a suspicious transaction is flagged by FraudGuard, the alert is logged using a hash-linked data structure inspired by blockchain principles. This prevents unauthorized historical modifications of security incidents:
         </p>
         
         <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
           <!-- Block 1 -->
-          <div style="background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25); border-radius: 8px; padding: 1rem; width: 220px; font-size: 0.78rem;">
-            <div style="font-weight: 700; color: #c4b5fd; margin-bottom: 0.4rem;">BLOCK #1 (Genesis)</div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Prev Hash: <span style="font-family: monospace; color: #e2e8f0;">genesis</span></div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Data: ID: tx_101, Score: 0.82</div>
-            <div style="color: var(--muted);">Hash: <span style="font-family: monospace; color: #a78bfa;">1948572...</span></div>
+          <div class="blockchain-block">
+            <div class="blockchain-block-title">BLOCK #1 (Genesis)</div>
+            <div style="margin-bottom: 0.2rem;">Prev Hash: <span class="blockchain-block-hash">genesis</span></div>
+            <div style="margin-bottom: 0.2rem;">Data: ID: tx_101, Score: 0.82</div>
+            <div>Hash: <span class="blockchain-block-hash" style="color: var(--primary);">1948572...</span></div>
           </div>
           
           <!-- Link -->
-          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.2);">➡️</div>
+          <div style="font-size: 1.5rem; color: var(--text-muted);">➡️</div>
           
           <!-- Block 2 -->
-          <div style="background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25); border-radius: 8px; padding: 1rem; width: 220px; font-size: 0.78rem;">
-            <div style="font-weight: 700; color: #c4b5fd; margin-bottom: 0.4rem;">BLOCK #2</div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Prev Hash: <span style="font-family: monospace; color: #a78bfa;">1948572...</span></div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Data: ID: tx_102, Score: 0.94</div>
-            <div style="color: var(--muted);">Hash: <span style="font-family: monospace; color: #a78bfa;">9082341...</span></div>
+          <div class="blockchain-block">
+            <div class="blockchain-block-title">BLOCK #2</div>
+            <div style="margin-bottom: 0.2rem;">Prev Hash: <span class="blockchain-block-hash" style="color: var(--primary);">1948572...</span></div>
+            <div style="margin-bottom: 0.2rem;">Data: ID: tx_102, Score: 0.94</div>
+            <div>Hash: <span class="blockchain-block-hash" style="color: var(--primary);">9082341...</span></div>
           </div>
           
           <!-- Link -->
-          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.2);">➡️</div>
+          <div style="font-size: 1.5rem; color: var(--text-muted);">➡️</div>
           
           <!-- Block 3 -->
-          <div style="background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25); border-radius: 8px; padding: 1rem; width: 220px; font-size: 0.78rem;">
-            <div style="font-weight: 700; color: #c4b5fd; margin-bottom: 0.4rem;">BLOCK #3</div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Prev Hash: <span style="font-family: monospace; color: #a78bfa;">9082341...</span></div>
-            <div style="color: var(--muted); margin-bottom: 0.2rem;">Data: ID: tx_103, Score: 0.71</div>
-            <div style="color: var(--muted);">Hash: <span style="font-family: monospace; color: #a78bfa;">3459812...</span></div>
+          <div class="blockchain-block">
+            <div class="blockchain-block-title">BLOCK #3</div>
+            <div style="margin-bottom: 0.2rem;">Prev Hash: <span class="blockchain-block-hash" style="color: var(--primary);">9082341...</span></div>
+            <div style="margin-bottom: 0.2rem;">Data: ID: tx_103, Score: 0.71</div>
+            <div>Hash: <span class="blockchain-block-hash" style="color: var(--primary);">3459812...</span></div>
           </div>
         </div>
         
-        <ul style="margin-left: 1.5rem; color: var(--muted); font-size: 0.88rem; line-height: 1.8;">
+        <ul style="margin-left: 1.5rem; font-size: 0.88rem; line-height: 1.8;">
           <li><strong>Linear Cryptographic Chain</strong>: Each block hashes its own transaction parameters together with the <code>previous_hash</code> string.</li>
           <li><strong>Tamper Detection</strong>: Changing even a single amount or score value in SQLite retroactively invalidates all downstream hash chains, alerting security auditors instantly.</li>
           <li><strong>Auditor Verification</strong>: Users with the <code>auditor</code> role have access to verification endpoints that re-run hash checking logic to guarantee integrity.</li>
@@ -838,7 +1000,7 @@
 
   <!-- ── Footer ── -->
   <footer>
-    <p>© 2026 <span>AI Insights &amp; Data Projects</span> — FraudGuard &amp; SpamShield</p>
+    <p>© 2026 <span>EMAIIL SPAM DETECTION&amp; CREDIT CARD FRAUD DETECTION MACHANISM</span> — FraudGuard &amp; SpamShield</p>
     <p style="margin-top:0.4rem;font-size:0.75rem">All apps accessible on one port · http://localhost:8000</p>
   </footer>
 
@@ -866,8 +1028,8 @@
         if (window.scrollY >= s.offsetTop - 120) current = s.id;
       });
       navLinks.forEach(a => {
-        a.style.color = a.getAttribute('href') === '#' + current ? '#fff' : '';
-        a.style.background = a.getAttribute('href') === '#' + current ? 'rgba(255,255,255,0.08)' : '';
+        a.style.color = a.getAttribute('href') === '#' + current ? 'var(--primary)' : '';
+        a.style.background = a.getAttribute('href') === '#' + current ? 'var(--bg-light)' : '';
       });
     });
 
@@ -898,15 +1060,15 @@
       const buttons = document.querySelectorAll('.tab-btn');
       buttons.forEach(b => {
         b.classList.remove('active');
-        b.style.color = 'var(--muted)';
+        b.style.color = 'var(--text-muted)';
         b.style.borderBottom = '2px solid transparent';
         b.style.fontWeight = '500';
       });
       
       document.getElementById(tabId).style.display = 'block';
       evt.currentTarget.classList.add('active');
-      evt.currentTarget.style.color = '#a78bfa';
-      evt.currentTarget.style.borderBottom = '2px solid #a78bfa';
+      evt.currentTarget.style.color = 'var(--primary)';
+      evt.currentTarget.style.borderBottom = '2px solid var(--primary)';
       evt.currentTarget.style.fontWeight = '600';
     }
   </script>
