@@ -16,12 +16,14 @@ model_path = os.path.join(settings.BASE_DIR, 'spam_model.pkl')
 data_path = os.path.join(settings.BASE_DIR, 'emails.csv')
 
 
+from django.db.models import Q
+
 def filter_by_user(queryset, request):
     if not request.authenticated_user_id:
         return queryset.none()
     if request.authenticated_user_role == 'admin':
         return queryset
-    return queryset.filter(user_id=request.authenticated_user_id)
+    return queryset.filter(Q(user_id=request.authenticated_user_id) | Q(user_id__isnull=True))
 
 def predict_message(message):
     if not spam_detector.is_trained:

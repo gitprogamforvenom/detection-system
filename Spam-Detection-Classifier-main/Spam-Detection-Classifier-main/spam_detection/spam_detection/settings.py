@@ -29,7 +29,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
-FORCE_SCRIPT_NAME = '/spam'
+FORCE_SCRIPT_NAME = None
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
