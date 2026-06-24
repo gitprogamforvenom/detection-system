@@ -5,6 +5,20 @@ import time
 
 print("Starting production services manager...")
 
+# Run Django database migrations
+print("Running Django database migrations...")
+try:
+    import sys
+    subprocess.run([
+        sys.executable,
+        "Spam-Detection-Classifier-main/Spam-Detection-Classifier-main/spam_detection/manage.py",
+        "migrate",
+        "--noinput"
+    ], check=True)
+    print("Django migrations applied successfully.")
+except Exception as e:
+    print(f"Error running Django migrations: {e}")
+
 # 1. Start FraudGuard internally on port 5000
 print("Launching FraudGuard backend on port 5000...")
 fg_proc = subprocess.Popen([
