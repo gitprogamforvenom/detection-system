@@ -506,7 +506,8 @@ a{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#7c3a
 def fraud_proxy(path=""):
     if not logged_in():
         return _blocked("FraudGuard - Financial Fraud Detection")
-    return _proxy(FRAUD_BASE, path)
+    full_path = "fraud/" + path if path else "fraud/"
+    return _proxy(FRAUD_BASE, full_path)
 
 @app.route("/spam",             methods=["GET","POST","PUT","DELETE"])
 @app.route("/spam/",            methods=["GET","POST","PUT","DELETE"])
@@ -514,7 +515,8 @@ def fraud_proxy(path=""):
 def spam_proxy(path=""):
     if not logged_in():
         return _blocked("SpamShield - Email Spam Classifier")
-    return _proxy(SPAM_BASE, path)
+    full_path = "spam/" + path if path else "spam/"
+    return _proxy(SPAM_BASE, full_path)
 
 # ==============================================================================
 if __name__ == "__main__":
