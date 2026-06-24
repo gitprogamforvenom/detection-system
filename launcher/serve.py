@@ -38,6 +38,17 @@ DB_CONFIG = {
     "database": os.environ.get("DB_DATABASE", "railway")
 }
 
+# Run database setup / migration on startup
+try:
+    import sys
+    sys.path.insert(0, os.path.join(PROJECT_DIR, 'auth'))
+    import db_setup
+    print("Running database setup/migration...")
+    db_setup.setup()
+    print("Database setup/migration completed successfully.")
+except Exception as _db_setup_err:
+    print(f"Warning: Database setup/migration failed to run on startup: {_db_setup_err}")
+
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
 
@@ -284,14 +295,20 @@ def admin():
         WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY DATE(created_at) ORDER BY day
     """)
-    reg_chart = cursor.fetchall()
+    reg_chart = [
+        {"day": str(row["day"]) if row["day"] else "", "cnt": row["cnt"]}
+        for row in cursor.fetchall()
+    ]
 
     cursor.execute("""
         SELECT DATE(login_at) AS day, COUNT(*) AS cnt FROM login_sessions
         WHERE login_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY DATE(login_at) ORDER BY day
     """)
-    login_chart = cursor.fetchall()
+    login_chart = [
+        {"day": str(row["day"]) if row["day"] else "", "cnt": row["cnt"]}
+        for row in cursor.fetchall()
+    ]
 
     cursor.execute("SELECT role, COUNT(*) AS cnt FROM users GROUP BY role")
     role_chart = cursor.fetchall()

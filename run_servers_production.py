@@ -19,6 +19,17 @@ try:
 except Exception as e:
     print(f"Error running Django migrations: {e}")
 
+# Run custom database migrations (MySQL setup/upgrade)
+print("Running custom database migrations...")
+try:
+    subprocess.run([
+        sys.executable,
+        "auth/db_setup.py"
+    ], check=True)
+    print("Custom database migrations applied successfully.")
+except Exception as e:
+    print(f"Error running custom database migrations: {e}")
+
 # 1. Start FraudGuard internally on port 5000
 print("Launching FraudGuard backend on port 5000...")
 fg_proc = subprocess.Popen([

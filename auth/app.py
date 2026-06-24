@@ -10,12 +10,14 @@ app.secret_key = "sentinelledger_secret_2025"
 app.permanent_session_lifetime = timedelta(hours=8)
 bcrypt = Bcrypt(app)
 
+import os
+
 DB_CONFIG = {
-    "host":     "mysql-kuif.railway.internal",
-    "port":     3306,
-    "user":     "root",
-    "password": "smbIROLNRlRhchdzTGuNaqNWdHkBKaay",
-    "database": "railway"
+    "host":     os.environ.get("DB_HOST", "mysql-kuif.railway.internal"),
+    "port":     int(os.environ.get("DB_PORT", 3306)),
+    "user":     os.environ.get("DB_USER", "root"),
+    "password": os.environ.get("DB_PASSWORD", "smbIROLNRlRhchdzTGuNaqNWdHkBKaay"),
+    "database": os.environ.get("DB_DATABASE", "railway")
 }
 
 def get_db():

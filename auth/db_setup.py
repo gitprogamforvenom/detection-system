@@ -12,8 +12,9 @@ def setup():
     conn   = mysql.connector.connect(**DB_CONFIG)
     cursor = conn.cursor()
 
-    cursor.execute("CREATE DATABASE IF NOT EXISTS railway CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-    cursor.execute("USE railway")
+    db_name = os.environ.get("DB_DATABASE", "railway")
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+    cursor.execute(f"USE {db_name}")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -75,6 +76,18 @@ def setup():
     # Upgrade existing DB: add last_login if missing
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN last_login DATETIME NULL AFTER is_active")
+    except Exception:
+        pass
+
+    # Upgrade existing DB: add user_id to alerts if missing
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN user_id INT NULL")
+    except Exception:
+        pass
+
+    # Add FK constraint on alerts.user_id if not already there (safe to fail if exists)
+    try:
+        cursor.execute("ALTER TABLE alerts ADD CONSTRAINT fk_alerts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL")
     except Exception:
         pass
 

@@ -235,11 +235,11 @@ def upload_file():
         try:
             import mysql.connector
             mysql_conn = mysql.connector.connect(
-                host=os.environ.get("DB_HOST", "localhost"),
-                port=int(os.environ.get("DB_PORT", 33066)),
+                host=os.environ.get("DB_HOST", "mysql-kuif.railway.internal"),
+                port=int(os.environ.get("DB_PORT", 3306)),
                 user=os.environ.get("DB_USER", "root"),
-                password=os.environ.get("DB_PASSWORD", "Vem12345@"),
-                database=os.environ.get("DB_DATABASE", "sentinelledger")
+                password=os.environ.get("DB_PASSWORD", "smbIROLNRlRhchdzTGuNaqNWdHkBKaay"),
+                database=os.environ.get("DB_DATABASE", "railway")
             )
             mysql_cursor = mysql_conn.cursor()
             for f_data in fraud_data:
