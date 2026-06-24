@@ -29,18 +29,6 @@ class FraudPrefixMiddleware(object):
 
 app.wsgi_app = FraudPrefixMiddleware(app.wsgi_app)
 
-# Automatically initialize the database and start the monitoring thread on import
-try:
-    init_db()
-except Exception as e:
-    print(f"Warning: Could not initialize database on import: {e}")
-
-try:
-    from real_time_monitor import fraud_monitor
-    fraud_monitor.start_monitoring()
-except Exception as e:
-    print(f"Warning: Could not start monitoring thread on import: {e}")
-
 
 def init_db():
     conn = sqlite3.connect('fraudguard.db', timeout=30)
@@ -125,6 +113,19 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+
+# Automatically initialize the database and start the monitoring thread on import
+try:
+    init_db()
+except Exception as e:
+    print(f"Warning: Could not initialize database on import: {e}")
+
+try:
+    from real_time_monitor import fraud_monitor
+    fraud_monitor.start_monitoring()
+except Exception as e:
+    print(f"Warning: Could not start monitoring thread on import: {e}")
 
 
 def get_user_context():
