@@ -254,76 +254,104 @@ def dashboard():
 @app.route("/admin")
 @admin_required
 def admin():
-    conn   = get_db(); cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT COUNT(*) AS c FROM users")
-    total_users = cursor.fetchone()["c"]
-    cursor.execute("SELECT COUNT(*) AS c FROM users WHERE is_active=1")
-    active_users = cursor.fetchone()["c"]
-    cursor.execute("SELECT COUNT(*) AS c FROM users WHERE DATE(created_at)=CURDATE()")
-    new_today = cursor.fetchone()["c"]
-    cursor.execute("SELECT COUNT(*) AS c FROM login_sessions WHERE DATE(login_at)=CURDATE()")
-    logins_today = cursor.fetchone()["c"]
-    cursor.execute("SELECT COUNT(*) AS c FROM failed_logins WHERE DATE(attempted_at)=CURDATE()")
-    failed_today = cursor.fetchone()["c"]
-    cursor.execute("SELECT COUNT(*) AS c FROM login_sessions")
-    total_logins = cursor.fetchone()["c"]
-
-    cursor.execute("""
-        SELECT al.*, u.username FROM activity_logs al
-        LEFT JOIN users u ON al.user_id=u.id
-        ORDER BY al.created_at DESC LIMIT 15
-    """)
-    recent_activity = cursor.fetchall()
-
     search   = request.args.get("search","").strip()
     role_f   = request.args.get("role_filter","")
     status_f = request.args.get("status_filter","")
-    q = "SELECT * FROM users WHERE 1=1"; p = []
-    if search:
-        q += " AND (username LIKE %s OR email LIKE %s)"; p += [f"%{search}%",f"%{search}%"]
-    if role_f:
-        q += " AND role=%s"; p.append(role_f)
-    if status_f != "":
-        q += " AND is_active=%s"; p.append(int(status_f))
-    q += " ORDER BY created_at DESC"
-    cursor.execute(q, p)
-    users = cursor.fetchall()
 
-    cursor.execute("""
-        SELECT DATE(created_at) AS day, COUNT(*) AS cnt FROM users
-        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-        GROUP BY DATE(created_at) ORDER BY day
-    """)
-    reg_chart = [
-        {"day": str(row["day"]) if row["day"] else "", "cnt": row["cnt"]}
-        for row in cursor.fetchall()
-    ]
+    # Safe defaults in case DB fails
+    total_users = active_users = new_today = logins_today = failed_today = total_logins = 0
+    recent_activity = users = login_history = failed_logins = []
+    reg_chart = login_chart = role_chart = []
 
-    cursor.execute("""
-        SELECT DATE(login_at) AS day, COUNT(*) AS cnt FROM login_sessions
-        WHERE login_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-        GROUP BY DATE(login_at) ORDER BY day
-    """)
-    login_chart = [
-        {"day": str(row["day"]) if row["day"] else "", "cnt": row["cnt"]}
-        for row in cursor.fetchall()
-    ]
+    def _str(v):
+        """Convert datetime/date/Decimal to JSON-safe string or number."""
+        import datetime, decimal
+        if isinstance(v, (datetime.datetime, datetime.date)):
+            return str(v)
+        if isinstance(v, decimal.Decimal):
+            return int(v)
+        return v
 
-    cursor.execute("SELECT role, COUNT(*) AS cnt FROM users GROUP BY role")
-    role_chart = cursor.fetchall()
+    def _safe_row(row):
+        """Convert all values in a dict row to JSON-safe types."""
+        return {k: _str(v) for k, v in row.items()}
 
-    cursor.execute("""
-        SELECT ls.*, u.username FROM login_sessions ls
-        LEFT JOIN users u ON ls.user_id=u.id
-        ORDER BY ls.login_at DESC LIMIT 20
-    """)
-    login_history = cursor.fetchall()
+    try:
+        conn   = get_db()
+        cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM failed_logins ORDER BY attempted_at DESC LIMIT 20")
-    failed_logins = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) AS c FROM users")
+        total_users = cursor.fetchone()["c"] or 0
+        cursor.execute("SELECT COUNT(*) AS c FROM users WHERE is_active=1")
+        active_users = cursor.fetchone()["c"] or 0
+        cursor.execute("SELECT COUNT(*) AS c FROM users WHERE DATE(created_at)=CURDATE()")
+        new_today = cursor.fetchone()["c"] or 0
+        cursor.execute("SELECT COUNT(*) AS c FROM login_sessions WHERE DATE(login_at)=CURDATE()")
+        logins_today = cursor.fetchone()["c"] or 0
+        cursor.execute("SELECT COUNT(*) AS c FROM failed_logins WHERE DATE(attempted_at)=CURDATE()")
+        failed_today = cursor.fetchone()["c"] or 0
+        cursor.execute("SELECT COUNT(*) AS c FROM login_sessions")
+        total_logins = cursor.fetchone()["c"] or 0
 
-    cursor.close(); conn.close()
+        cursor.execute("""
+            SELECT al.*, u.username FROM activity_logs al
+            LEFT JOIN users u ON al.user_id=u.id
+            ORDER BY al.created_at DESC LIMIT 15
+        """)
+        recent_activity = [_safe_row(r) for r in cursor.fetchall()]
+
+        q = "SELECT * FROM users WHERE 1=1"; p = []
+        if search:
+            q += " AND (username LIKE %s OR email LIKE %s)"; p += [f"%{search}%",f"%{search}%"]
+        if role_f:
+            q += " AND role=%s"; p.append(role_f)
+        if status_f != "":
+            q += " AND is_active=%s"; p.append(int(status_f))
+        q += " ORDER BY created_at DESC"
+        cursor.execute(q, p)
+        users = [_safe_row(r) for r in cursor.fetchall()]
+
+        cursor.execute("""
+            SELECT DATE(created_at) AS day, COUNT(*) AS cnt FROM users
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY DATE(created_at) ORDER BY day
+        """)
+        reg_chart = [
+            {"day": str(row["day"]) if row["day"] else "", "cnt": int(row["cnt"] or 0)}
+            for row in cursor.fetchall()
+        ]
+
+        cursor.execute("""
+            SELECT DATE(login_at) AS day, COUNT(*) AS cnt FROM login_sessions
+            WHERE login_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY DATE(login_at) ORDER BY day
+        """)
+        login_chart = [
+            {"day": str(row["day"]) if row["day"] else "", "cnt": int(row["cnt"] or 0)}
+            for row in cursor.fetchall()
+        ]
+
+        cursor.execute("SELECT role, COUNT(*) AS cnt FROM users GROUP BY role")
+        role_chart = [
+            {"role": str(row["role"] or ""), "cnt": int(row["cnt"] or 0)}
+            for row in cursor.fetchall()
+        ]
+
+        cursor.execute("""
+            SELECT ls.*, u.username FROM login_sessions ls
+            LEFT JOIN users u ON ls.user_id=u.id
+            ORDER BY ls.login_at DESC LIMIT 20
+        """)
+        login_history = [_safe_row(r) for r in cursor.fetchall()]
+
+        cursor.execute("SELECT * FROM failed_logins ORDER BY attempted_at DESC LIMIT 20")
+        failed_logins = [_safe_row(r) for r in cursor.fetchall()]
+
+        cursor.close(); conn.close()
+
+    except Exception as e:
+        flash(f"Database error loading admin panel: {e}", "danger")
+
     return render_template("admin.html",
         username=session["username"], role=session["role"],
         total_users=total_users, active_users=active_users,
@@ -334,6 +362,7 @@ def admin():
         login_history=login_history, failed_logins=failed_logins,
         search=search, role_filter=role_f, status_filter=status_f
     )
+
 
 @app.route("/admin/user/add", methods=["POST"])
 @admin_required
