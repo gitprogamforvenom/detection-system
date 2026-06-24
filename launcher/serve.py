@@ -451,6 +451,14 @@ def _proxy(target_base, path):
             timeout=60, stream=True
         )
     except requests.exceptions.ConnectionError:
+        is_json = (
+            ("Accept" in request.headers and "application/json" in request.headers["Accept"]) or
+            ("upload" in path) or ("api" in path)
+        )
+        if is_json:
+            import json
+            err_json = json.dumps({"error": f"Service Unavailable: Cannot reach {target_base}. Make sure the backend service is running."})
+            return Response(err_json, status=502, mimetype="application/json")
         html = (
             "<div style='font-family:sans-serif;padding:2rem;background:#0f0c29;color:#fff;min-height:100vh'>"
             "<h2 style='color:#f87171'>Service Unavailable</h2>"

@@ -30,7 +30,11 @@ class FraudPrefixMiddleware(object):
 app.wsgi_app = FraudPrefixMiddleware(app.wsgi_app)
 
 # Automatically initialize the database and start the monitoring thread on import
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"Warning: Could not initialize database on import: {e}")
+
 try:
     from real_time_monitor import fraud_monitor
     fraud_monitor.start_monitoring()
