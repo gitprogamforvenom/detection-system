@@ -29,6 +29,14 @@ class FraudPrefixMiddleware(object):
 
 app.wsgi_app = FraudPrefixMiddleware(app.wsgi_app)
 
+# Automatically initialize the database and start the monitoring thread on import
+init_db()
+try:
+    from real_time_monitor import fraud_monitor
+    fraud_monitor.start_monitoring()
+except Exception as e:
+    print(f"Warning: Could not start monitoring thread on import: {e}")
+
 
 def init_db():
     conn = sqlite3.connect('fraudguard.db', timeout=30)
