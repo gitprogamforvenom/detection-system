@@ -1,6 +1,24 @@
 import mysql.connector
 import os
 
+def load_dotenv():
+    # Look for .env in current directory or parent directory
+    for path in [".env", "../.env", "auth/.env"]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith("#"):
+                            continue
+                        if "=" in line:
+                            k, v = line.split("=", 1)
+                            os.environ[k.strip()] = v.strip()
+            except Exception:
+                pass
+
+load_dotenv()
+
 DB_CONFIG = {
     "host":     os.environ.get("DB_HOST", "mysql-kuif.railway.internal"),
     "port":     int(os.environ.get("DB_PORT", 3306)),
@@ -79,9 +97,39 @@ def setup():
     except Exception:
         pass
 
+    # Upgrade existing DB: add login_at to login_sessions if missing
+    try:
+        cursor.execute("ALTER TABLE login_sessions ADD COLUMN login_at DATETIME DEFAULT CURRENT_TIMESTAMP AFTER ip_address")
+    except Exception:
+        pass
+
     # Upgrade existing DB: add user_id to alerts if missing
     try:
         cursor.execute("ALTER TABLE alerts ADD COLUMN user_id INT NULL")
+    except Exception:
+        pass
+
+    # Upgrade existing DB: add created_at to users if missing
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP AFTER last_login")
+    except Exception:
+        pass
+
+    # Upgrade existing DB: add attempted_at to failed_logins if missing
+    try:
+        cursor.execute("ALTER TABLE failed_logins ADD COLUMN attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP AFTER ip_address")
+    except Exception:
+        pass
+
+    # Upgrade existing DB: add created_at to activity_logs if missing
+    try:
+        cursor.execute("ALTER TABLE activity_logs ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP AFTER ip_address")
+    except Exception:
+        pass
+
+    # Upgrade existing DB: add created_at to alerts if missing
+    try:
+        cursor.execute("ALTER TABLE alerts ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP AFTER user_id")
     except Exception:
         pass
 
